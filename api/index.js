@@ -28,9 +28,13 @@ async function uploadToFirebase(file, docId) {
 }
 
 async function deleteCover(docId) {
-  const postDoc = await Post.findById(docId);
-  const fileRef = ref(storage, `posts/${docId}.png`);
-  await deleteObject(fileRef);
+  try {
+    const fileRef = ref(storage, `posts/${docId}.png`);
+    await deleteObject(fileRef);
+  } catch(e) {
+    if(e.code === "storage/object-not-found") return;
+    console.error(e);
+  }
 }
 
 const app = express();
