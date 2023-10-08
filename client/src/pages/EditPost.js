@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {Navigate, useParams} from "react-router-dom";
 import Editor from "../Editor";
+import axios from "../axios"
 
 
 export default function EditPost() {
@@ -14,14 +15,18 @@ export default function EditPost() {
 
 
   useEffect(() => {
-    fetch("http://localhost:4000/post/" + id).then(res => {
-      res.json().then(postInfo => {
-        setTitle(postInfo.title);
-        setContent(postInfo.content);
-        setSummary(postInfo.summary);
-      })
-    })
+    const fetchPost = async () => {
+      try {
+        const response = await axios.get("/post/" + id);
+        setTitle(response.data.title);
+        setContent(response.data.content);
+        setSummary(response.data.summary);
+        } catch (e) {
+        console.error(e);
+      }
+    };
 
+    fetchPost();
   }, [])
 
 
@@ -37,13 +42,16 @@ export default function EditPost() {
       data.set("file", files?.[0]);
     }
 
-    const response = await fetch("http://localhost:4000/post", {
-      method: "PUT",
-      body: data,
-      credentials: "include",
-    })
-    if(response.ok) {
-      setRedirect(true);
+    try {
+      const response = await axios.put("/post", data, {
+        withCredentials: true,
+      });
+
+      if(response.status === 200) {
+        setRedirect(true);
+      }
+    } catch(e) {
+      console.error(e);
     }
 
   }

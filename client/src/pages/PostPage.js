@@ -3,6 +3,7 @@ import {Link, Navigate, useParams} from "react-router-dom";
 import {format} from "date-fns";
 import {UserContext} from "../UserContext";
 import AssignColor from "../AssignColor";
+import axios from "../axios";
 
 
 export default function PostPage() {
@@ -16,24 +17,28 @@ export default function PostPage() {
 
   useEffect(() => {
     setColor(AssignColor(id));
-    fetch(`http://localhost:4000/post/${id}`)
+    axios.get("/post/" + id)
       .then(response => {
-        response.json().then(postInfo => {
-          setPostInfo(postInfo);
-        });
+        setPostInfo(response.data);
       })
+      .catch(e => {
+        console.error(e);
+      })
+
   }, []);
 
   async function deletePost(ev) {
     ev.preventDefault();
 
-    const response = await fetch("http://localhost:4000/post", {
-      method: "DELETE",
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id}),
-    });
+    try {
+      await axios.delete("/post", {
+        data: {id},
+      });
+      setRedirect(true);
+    } catch(e) {
+      console.error(e);
+    }
 
-    setRedirect(true);
   }
 
   if(redirect) {

@@ -1,26 +1,30 @@
 import {Link} from "react-router-dom";
 import {useContext, useEffect} from "react";
 import {UserContext} from "./UserContext";
+import axios from "./axios";
 
 export default function Header() {
   const {setUserInfo, userInfo} = useContext(UserContext);
 
   useEffect(() => {
-    fetch("http://localhost:4000/profile", {
-      credentials: "include",
-    }).then(res => {
-      res.json().then(userInfo => {
-        setUserInfo(userInfo);
-      })
-    })}
-    ,[])
-
-
-  function logout() {
-    fetch("http://localhost:4000/logout", {
-      credentials: "include",
-      method: "POST",
+    axios.get("/profile", {
+      withCredentials: true,
     })
+      .then(res => {
+      setUserInfo(res.data);
+      })
+      .catch(e => {
+        console.error(e);
+      });
+
+  }, [])
+
+
+  async function logout() {
+    await axios.post("/logout", {}, {
+      withCredentials: true,
+    });
+
     setUserInfo(null);
   }
 

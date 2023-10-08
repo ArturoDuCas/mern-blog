@@ -42,10 +42,9 @@ const secret = process.env.JWT_SECRET;
 app.use(cors({credentials: true, origin:"http://localhost:3000"}));
 app.use(express.json());
 app.use(cookieParser());
-app.use("/uploads", express.static(__dirname + "/uploads"));
 
 
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const {username, password} = req.body;
   try {
@@ -58,11 +57,10 @@ app.post("/register", async (req, res) => {
   } catch(e) {
     res.status(400).json(e);
   }
-
 });
 
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const {username, password} = req.body;
   const userDoc = await User.findOne({username});
@@ -84,7 +82,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", (req, res) => {
+app.get("/api/profile", (req, res) => {
   const {token} = req.cookies;
   jwt.verify(token, secret, {}, (err, info) => {
     if(err) throw err;
@@ -93,12 +91,12 @@ app.get("/profile", (req, res) => {
 });
 
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   res.cookie("token", "").json("ok");
 });
 
 
-app.post("/post", upload.single('file'), async (req, res) => {
+app.post("/api/post", upload.single('file'), async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const {token} = req.cookies;
   const {title, summary, content} = req.body;
@@ -123,7 +121,7 @@ app.post("/post", upload.single('file'), async (req, res) => {
   })
 });
 
-app.get("/post", async (req, res) => {
+app.get("/api/post", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const posts = await Post.find()
     .populate("author", ["username"])
@@ -133,7 +131,7 @@ app.get("/post", async (req, res) => {
 })
 
 
-app.get("/post/:id", async (req, res) => {
+app.get("/api/post/:id", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const { id } = req.params;
   const postDoc = await Post.findById(id).populate("author", ["username"]);
@@ -141,7 +139,7 @@ app.get("/post/:id", async (req, res) => {
 });
 
 
-app.put("/post", upload.single('file'), async (req, res) => {
+app.put("/api/post", upload.single('file'), async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const {id, title, summary, content } = req.body;
 
@@ -171,7 +169,7 @@ app.put("/post", upload.single('file'), async (req, res) => {
 
 });
 
-app.delete("/post", async (req, res) => {
+app.delete("/api/post", async (req, res) => {
   mongoose.connect(process.env.MONGO_URI);
   const { id } = req.body;
   await deleteCover(id);

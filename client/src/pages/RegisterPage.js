@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {Navigate} from "react-router-dom";
+import axios from "../axios";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -9,20 +10,18 @@ export default function RegisterPage() {
   async function register(ev) {
     ev.preventDefault()
 
-    const response = await fetch("http://localhost:4000/register", {
-        method: "POST",
-        body: JSON.stringify({username,password}),
-        headers: {"Content-Type" : "application/json"}
+    axios.post("/register", {
+      username,
+      password,
+    }, {})
+      .then(res => {
+        setRedirect(true);
       })
-
-    if(response.status === 200) {
-      setRedirect(true);
-    } else {
-      alert("registration failed");
-    }
-
-
+      .catch(e => {
+        console.error(e);
+      });
   }
+
 
   if(redirect) {
     return <Navigate to={"/"} />
