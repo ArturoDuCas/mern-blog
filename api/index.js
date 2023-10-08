@@ -39,7 +39,7 @@ const upload = multer();
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.JWT_SECRET;
 
-app.use(cors({credentials: true, origin:"http://localhost:3000"}));
+app.use(cors({credentials: true, origin:process.env.CLIENT_URL}));
 app.use(express.json());
 app.use(cookieParser());
 
